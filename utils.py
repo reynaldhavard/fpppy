@@ -6,39 +6,39 @@ import seaborn as sns
 get_colors = lambda n: sns.husl_palette(n_colors=n)
 
 
-def plot_series(
-    df,
-    id_col,
-    time_col,
-    target_col,
-    title,
-    xlabel,
-    ylabel,
-    ids=None,
-    max_insample_length=None,
-):
-    fig, ax = plt.subplots(figsize=(10, 6))
+# def plot_series(
+#     df,
+#     id_col,
+#     time_col,
+#     target_col,
+#     title,
+#     xlabel,
+#     ylabel,
+#     ids=None,
+#     max_insample_length=None,
+# ):
+#     fig, ax = plt.subplots(figsize=(10, 6))
 
-    df_grouped = df.groupby(id_col)
-    if ids is not None:
-        group_keys = ids
-    else:
-        group_keys = df_grouped.groups.keys()
-    colors = get_colors(n=len(group_keys))
-    for i, key in enumerate(group_keys):
-        group = df_grouped.get_group(key)
-        if ids is not None and key not in ids:
-            continue
-        if max_insample_length is not None:
-            group = group.tail(max_insample_length)
-        ax.plot(group[time_col], group[target_col], label=key, color=colors[i])
-    ax.set_title(title)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    if ids is not None and len(ids) > 1:
-        ax.legend(title=id_col, loc="upper left", bbox_to_anchor=(1, 1))
-    plt.tight_layout()
-    plt.show()
+#     df_grouped = df.groupby(id_col)
+#     if ids is not None:
+#         group_keys = ids
+#     else:
+#         group_keys = df_grouped.groups.keys()
+#     colors = get_colors(n=len(group_keys))
+#     for i, key in enumerate(group_keys):
+#         group = df_grouped.get_group(key)
+#         if ids is not None and key not in ids:
+#             continue
+#         if max_insample_length is not None:
+#             group = group.tail(max_insample_length)
+#         ax.plot(group[time_col], group[target_col], label=key, color=colors[i])
+#     ax.set_title(title)
+#     ax.set_xlabel(xlabel)
+#     ax.set_ylabel(ylabel)
+#     if ids is not None and len(ids) > 1:
+#         ax.legend(title=id_col, loc="upper left", bbox_to_anchor=(1, 1))
+#     plt.tight_layout()
+#     plt.show()
 
 
 def lag_plot(df, target_col, lags, period_name, labels, nrows, ncols):
