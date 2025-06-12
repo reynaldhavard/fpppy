@@ -1,44 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+from statsmodels.graphics.tsaplots import plot_acf
+from utilsforecast.losses import mape as _mape
 
 
 get_colors = lambda n: sns.husl_palette(n_colors=n)
-
-
-# def plot_series(
-#     df,
-#     id_col,
-#     time_col,
-#     target_col,
-#     title,
-#     xlabel,
-#     ylabel,
-#     ids=None,
-#     max_insample_length=None,
-# ):
-#     fig, ax = plt.subplots(figsize=(10, 6))
-
-#     df_grouped = df.groupby(id_col)
-#     if ids is not None:
-#         group_keys = ids
-#     else:
-#         group_keys = df_grouped.groups.keys()
-#     colors = get_colors(n=len(group_keys))
-#     for i, key in enumerate(group_keys):
-#         group = df_grouped.get_group(key)
-#         if ids is not None and key not in ids:
-#             continue
-#         if max_insample_length is not None:
-#             group = group.tail(max_insample_length)
-#         ax.plot(group[time_col], group[target_col], label=key, color=colors[i])
-#     ax.set_title(title)
-#     ax.set_xlabel(xlabel)
-#     ax.set_ylabel(ylabel)
-#     if ids is not None and len(ids) > 1:
-#         ax.legend(title=id_col, loc="upper left", bbox_to_anchor=(1, 1))
-#     plt.tight_layout()
-#     plt.show()
 
 
 def lag_plot(df, target_col, lags, period_name, labels, nrows, ncols):
@@ -84,3 +51,38 @@ def lag_plot(df, target_col, lags, period_name, labels, nrows, ncols):
     fig.supylabel(target_col, x=0.07, fontsize=12)
     plt.tight_layout()
     plt.show()
+
+
+def plot_diagnostics(data):
+    fig = plt.figure(figsize=(12, 8))
+
+    ax1 = fig.add_subplot(2, 2, (1, 2))
+    ax1.plot(data["ds"], data["resid"])
+    ax1.set_title("Innovation Residuals")
+
+    ax2 = fig.add_subplot(2, 2, 3)
+    plot_acf(
+        data["resid"].dropna(),
+        ax=ax2,
+        zero=False,
+        bartlett_confint=False,
+        auto_ylims=True,
+    )
+    ax2.set_title("ACF Plot")
+    ax2.set_xlabel("lag[1]")
+
+    ax3 = fig.add_subplot(2, 2, 4)
+    ax3.hist(data["resid"], bins=20)
+    ax3.set_title("Histogram")
+    ax3.set_xlabel(".resid")
+    ax3.set_ylabel("Count")
+
+    plt.tight_layout()
+    plt.show()
+
+
+def mape(df, models, id_col="unique_id", target_col="y"):
+    df_mape = _mape(df, models, id_col=id_col, target_col=target_col)
+    df_mape.loc[:, df_mape.select_dtypes(include="number").columns] *= 100
+
+    return df_mape
